@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: chat-agent-service
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: chat-agent-service
+  template:
+    metadata:
+      labels:
+        app: chat-agent-service
+    spec:
+      containers:
+      - name: chat-agent-service
+        image: ashraf081/chat-agent-service:latest
+        ports:
+        - containerPort: 8003
+        volumeMounts:
+        - name: shared-data
+          mountPath: /app/data
+      volumes:
+      - name: shared-data
+        persistentVolumeClaim:
+          claimName: shared-data-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: chat-agent-service
+spec:
+  selector:
+    app: chat-agent-service
+  ports:
+  - protocol: TCP
+    port: 8003
+    targetPort: 8003
+  type: ClusterIP
